@@ -8,51 +8,39 @@ use quote::{quote, spanned::Spanned, ToTokens};
 use syn::{parse_macro_input, DeriveInput, FieldsNamed};
 use traits::FromEnv;
 
-#[proc_macro_derive(Settings)]
-pub fn derive_answer_fn(item: TokenStream) -> TokenStream {
+#[proc_macro_derive(Settings, attributes(settings))]
+pub fn derive_settings(item: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(item);
-
-    let mut fields_implement = TokenStream::new();
+    let mut field_deserializers = vec![];
+    let mut field_names = vec![];
 
     if let syn::Data::Struct(s) = data {
         if let syn::Fields::Named(FieldsNamed { named, .. }) = s.fields {
             for field in named {
-                // println!("{}", field.ident.unwrap());
-                let field_name = field.clone().ident.unwrap().to_string();
-
-                println!("{:?}", field_name);
-
-                // println!("{:?}", field.ty)
+                let field_name = field.clone().ident.unwrap();
+                let field_type = &field.ty;
+                field_deserializers.push(quote! {
+                    let #field_name = match std::env::var(format!("{}{}", prefix, stringify!(#field_name).to_uppercase())) {
+                        Ok(val) => val.parse::<#field_type>().expect("Failed to parse environment variable"),
+                        Err(_) => #field_type::default(),
+                    };
+                });
+                field_names.push(field_name);
             }
         }
     }
 
-    println!("{}", fields_implement);
-
-    quote! {
+    let expanded = quote! {
         impl #ident {
             fn load_from_env() -> Self {
-                // #ident {
-
-                // }
-                todo!();
-                // let mut settings = Self::default();
-                // settings.load_from_env();
-                // settings
+                let prefix = std::env::var("PREFIX").unwrap_or_default();
+                #(#field_deserializers)*
+                Self {
+                    #(#field_names),*
+                }
             }
         }
-    }
-    .into()
+    };
+
+    TokenStream::from(expanded)
 }
-
-// impl Settings {
-//     pub fn parse() -> Settings {
-//         let host = std::env::var("host").unwrap_or("".into());
-//         let port = std::env::var("port")
-//             .unwrap_or("8080".into())
-//             .parse::<u16>()
-//             .unwrap_or(8080);
-
-//         Settings { host, port }
-//     }
-// }
