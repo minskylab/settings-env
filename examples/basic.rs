@@ -8,7 +8,7 @@ struct ServiceSettings {
 }
 
 #[derive(Settings)]
-// #[settings(prefix = "app")]
+#[settings(prefix = "app")]
 struct AppSettings {
     pub debug: bool,
     pub service: ServiceSettings,

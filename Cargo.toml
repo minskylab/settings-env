@@ -11,3 +11,4 @@ edition = "2021"
 quote = "1.0.28"
 syn = "2.0.18"
 macros = { path = "macros"}
+darling = "0.20.1"
