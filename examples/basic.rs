@@ -22,16 +22,16 @@ fn main() {
 
     let settings = AppSettings::load().unwrap();
 
-    // assert_eq!(
-    //     Some(settings.debug),
-    //     env::var("APP_DEBUG").unwrap().parse::<bool>().ok()
-    // );
-    // assert_eq!(
-    //     Some(settings.service.host),
-    //     env::var("APP_SERVICE_HOST").ok()
-    // );
-    // assert_eq!(
-    //     Some(settings.service.port),
-    //     env::var("APP_SERVICE_PORT").unwrap().parse::<u16>().ok()
-    // );
+    assert_eq!(
+        Some(settings.debug),
+        env::var("APP_DEBUG").unwrap().parse::<bool>().ok()
+    );
+    assert_eq!(
+        Some(settings.service.host),
+        env::var("APP_SERVICE_HOST").ok()
+    );
+    assert_eq!(
+        Some(settings.service.port),
+        env::var("APP_SERVICE_PORT").unwrap().parse::<u16>().ok()
+    );
 }
