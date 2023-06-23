@@ -1,5 +1,6 @@
-use std::io;
+use std::{fmt::Display, io};
 
+use serde::de::Error as SerdeError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -10,6 +11,14 @@ pub enum SettingsError {
     Redaction(String),
     #[error("invalid header (expected {expected:?}, found {found:?})")]
     InvalidHeader { expected: String, found: String },
+    #[error("deserialization error: {0}")]
+    Deserialization(String),
     #[error("unknown data store error")]
     Unknown,
+}
+
+impl SerdeError for SettingsError {
+    fn custom<T: Display>(msg: T) -> Self {
+        SettingsError::Deserialization(msg.to_string())
+    }
 }
